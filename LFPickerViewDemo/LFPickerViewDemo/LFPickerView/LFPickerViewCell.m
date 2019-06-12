@@ -22,19 +22,20 @@
     return NSStringFromClass([self class]);
 }
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        _textLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, (CGRectGetHeight(self.contentView.frame) - self.textLabel.intrinsicContentSize.height) / 2, self.textLabel.intrinsicContentSize.width, self.textLabel.intrinsicContentSize.height)];
-        _textLabel.textColor = [UIColor blackColor];
-        _textLabel.font = [UIFont boldSystemFontOfSize:[UIFont systemFontSize]];
-        _textLabel.textAlignment = NSTextAlignmentCenter;
-        [self.contentView addSubview:self.textLabel];
-        
-        _reuseableView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.contentView.frame), CGRectGetHeight(self.contentView.frame))];
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
+        self.textLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+        _reuseableView = [[UIView alloc] initWithFrame:CGRectZero];
         [self.contentView addSubview:self.reuseableView];
     }
     return self;
+}
+
+- (void)layoutSubviews {
+    self.reuseableView.frame = CGRectMake(0, 0, CGRectGetWidth(self.contentView.frame), CGRectGetHeight(self.contentView.frame));
+    [super layoutSubviews];
 }
 
 @end

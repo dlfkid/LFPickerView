@@ -10,82 +10,135 @@
 
 #import "LFPickerViewCell.h"
 
-@interface LFPickerView()<UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout>
+@interface LFPickerView()<UITableViewDataSource, UITableViewDelegate>
 
-@property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic, strong) NSArray <UITableView *> *components;
+@property (nonatomic, strong) UIView *selectionFrame;
 
 @end
+
+static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifier";
 
 @implementation LFPickerView
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        _collectionView = [[UICollectionView alloc] initWithFrame:frame];
-        [_collectionView registerClass:[LFPickerViewCell class] forCellWithReuseIdentifier:[LFPickerViewCell reuseIdentifier]];
+        [self reloadData];
+        [self addSubview:self.selectionFrame];
     }
     return self;
 }
 
 - (void)layoutSubviews {
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    [self reloadData];
+    __weak typeof(self) weakSelf = self;
+    [self.components enumerateObjectsUsingBlock:^(UITableView * _Nonnull component, NSUInteger index, BOOL * _Nonnull stop) {
+        CGFloat componentWidth = [weakSelf.delegate lf_pickerView:weakSelf WidthForComponent:index];
+        CGFloat originX = 0;
+        for (NSInteger i = 0; i < index; i ++) {
+            originX += [weakSelf.delegate lf_pickerView:weakSelf WidthForComponent:i];
+        }
+        component.frame = CGRectMake(originX, 0, componentWidth, CGRectGetHeight(weakSelf.frame));
+    }];
+    
+    self.selectionFrame.frame = CGRectMake(0, CGRectGetHeight(self.frame) / 2, CGRectGetWidth(self.frame), 1);
+    [self bringSubviewToFront:self.selectionFrame];
     
     [super layoutSubviews];
 }
 
-#pragma mark - UICollectionViewDataSource
+#pragma mark - Actions
 
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return [self.dataSource lf_numberOfComponentsInPickerView:self];
-}
-
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [self.dataSource lf_pickerView:self numberOfRowsInComponent:section];
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    LFPickerViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[LFPickerViewCell reuseIdentifier] forIndexPath:indexPath];
-    // 按照顺序响应协议方法
-    if ([self.delegate respondsToSelector:@selector(lf_pickerView:titleForRow:forComponent:)]) {
-        NSString *title = [self.delegate lf_pickerView:self titleForRow:indexPath.row forComponent:indexPath.section];
-        cell.textLabel.text = title;
+- (void)reloadData {
+    [self.components enumerateObjectsUsingBlock:^(UITableView * _Nonnull component, NSUInteger index, BOOL * _Nonnull stop) {
+       // 移除所有的tableView
+        [component removeFromSuperview];
+    }];
+    NSMutableArray *tempComponents = [NSMutableArray array];
+    NSInteger numberOfComponent = [self.dataSource lf_numberOfComponentsInPickerView:self];
+    for (NSInteger i = 0; i < numberOfComponent; i ++) {
+        UITableView *componentTable = [self componentsInit];
+        [tempComponents addObject:componentTable];
     }
-    if ([self.delegate respondsToSelector:@selector(lf_pickerView:attributedTitleForRow:forComponent:)]) {
-        NSAttributedString *attributeTitle = [self.delegate lf_pickerView:self attributedTitleForRow:indexPath.row forComponent:indexPath.section];
-        cell.textLabel.attributedText = attributeTitle;
+    self.components = tempComponents;
+    for (UITableView *component in self.components) {
+        [component registerClass:[LFPickerViewCell class] forCellReuseIdentifier:[NSString stringWithFormat:@"%@_%ld", [LFPickerViewCell reuseIdentifier], (long)[self.components indexOfObject:component]]];
+        [self addSubview:component];
     }
-    if ([self.delegate respondsToSelector:@selector(lf_pickerView:viewForRow:forComponent:reusingView:)]) {
-        UIView *view = [self.delegate lf_pickerView:self viewForRow:indexPath.row forComponent:indexPath.section reusingView:cell.reuseableView];
-        cell.reuseableView = view;
+    
+}
+
+- (UITableView *)componentsInit {
+    UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    tableView.showsVerticalScrollIndicator = NO;
+    tableView.dataSource = self;
+    tableView.delegate = self;
+    return tableView;
+}
+
+#pragma mark - UITableViewDataSource
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return [self.dataSource lf_pickerView:self numberOfRowsInComponent:(NSInteger)[self.components indexOfObject:tableView]];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger componentIndex = (NSInteger)[self.components indexOfObject:tableView];
+    if (componentIndex < self.components.count) {
+        LFPickerViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[NSString stringWithFormat:@"%@_%ld", [LFPickerViewCell reuseIdentifier], (long)componentIndex]];
+        if ([self.delegate respondsToSelector:@selector(lf_pickerView:titleForRow:forComponent:)]) {
+            NSString *title = [self.delegate lf_pickerView:self titleForRow:indexPath.row forComponent:componentIndex];
+            cell.textLabel.text = title;
+        }
+        return cell;
+    } else {
+        return [[UITableViewCell alloc] initWithFrame:CGRectZero];
     }
-    return cell;
 }
 
-#pragma mark - UICollectionViewDelegate
+#pragma mark - UITableViewDelegate
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [self.delegate lf_pickerView:self SizeOfCellInRow:indexPath.row Component:indexPath.section];
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [self.delegate lf_pickerView:self HeightForComponent:(NSInteger)[self.components indexOfObject:tableView] Row:indexPath.row];
 }
 
-- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
-    return UIEdgeInsetsMake(5, 5, 5, 5);
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    return [UIView new];
 }
 
-- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
-    return 10;
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    return [UIView new];
 }
 
-- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
-    return 10;
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    NSInteger componentIndex = [self.components indexOfObject:tableView];
+    CGFloat firstCellHeight = [self.delegate lf_pickerView:self HeightForComponent:componentIndex Row:0];
+    return (CGRectGetHeight(self.frame) - firstCellHeight) / 2;
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
-    return CGSizeMake(22, CGRectGetHeight(self.frame));
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    NSInteger componentIndex = [self.components indexOfObject:tableView];
+    CGFloat lastCellHeight = [self.delegate lf_pickerView:self HeightForComponent:componentIndex Row:[self.dataSource lf_pickerView:self numberOfRowsInComponent:componentIndex] - 1];
+    return (CGRectGetHeight(self.frame) - lastCellHeight) / 2 ;
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section {
-    return CGSizeMake(22, CGRectGetHeight(self.frame));
+#pragma mark - LazyLoads
+
+- (UIView *)selectionFrame {
+    if (!_selectionFrame) {
+        _selectionFrame = [[UIView alloc] initWithFrame:CGRectZero];
+        _selectionFrame.layer.borderWidth = 0.5;
+        _selectionFrame.layer.borderColor = [UIColor lightGrayColor].CGColor;
+        _selectionFrame.layer.cornerRadius = 5;
+    }
+    return _selectionFrame;
 }
 
 @end

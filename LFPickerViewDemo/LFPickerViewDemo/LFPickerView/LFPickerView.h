@@ -16,14 +16,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @required
 
+- (CGFloat)lf_pickerView:(LFPickerView *)pickerView WidthForComponent:(NSInteger)component;
 
-/// Returen Size of earch cell
-/// @param pickerView the picker view
-/// @param row cell row
-/// @param componen cell component
-- (CGSize)lf_pickerView:(LFPickerView *)pickerView SizeOfCellInRow:(NSInteger)row Component:(NSInteger)componen;
+- (CGFloat)lf_pickerView:(LFPickerView *)pickerView HeightForComponent:(NSInteger)component Row:(NSInteger)row;
 
 @optional
+
+/// Return Size of the supplyMentView
+/// @param pickerView the pickerView
+/// @param component the component before the supplymentView
+- (CGSize)lf_pickerView:(LFPickerView *)pickerView SizeOfSupplymentViewAfterComponent:(NSInteger)component;
 
 /// Title for earch row in a component
 /// @param pickerView the pickerview
@@ -50,6 +52,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param component the component
 - (void)lf_pickerView:(LFPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component;
 
+
+/// the view work as supplyment view
+/// @param pickerView the pickerview
+/// @param component component
+- (UIView *)lf_pickerView:(LFPickerView *)pickerView SupplymentViewAfterComponent:(NSInteger)component;
+
 @end
 
 @protocol LFPickerViewDataSource
@@ -71,6 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) NSObject<LFPickerViewDelegate> *delegate;
 @property (nonatomic, weak) NSObject<LFPickerViewDataSource> *dataSource;
+
+- (void)reloadData;
 
 @end
 
