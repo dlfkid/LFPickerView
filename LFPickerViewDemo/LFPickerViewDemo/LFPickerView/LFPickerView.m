@@ -63,6 +63,10 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
         lastSupplymnet.frame = CGRectMake(CGRectGetMaxX(lastComponent.frame), 0, lastSupplymentWidth, CGRectGetHeight(self.frame));
     }
     
+    [self.supplymentViews enumerateObjectsUsingBlock:^(UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [weakSelf bringSubviewToFront:obj];
+    }];
+    
     [super layoutSubviews];
 }
 
@@ -82,6 +86,7 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     self.components = tempComponents;
     for (UITableView *component in self.components) {
         [component registerClass:[LFPickerViewCell class] forCellReuseIdentifier:[NSString stringWithFormat:@"%@_%ld", [LFPickerViewCell reuseIdentifier], (long)[self.components indexOfObject:component]]];
+        [component reloadData];
         [self addSubview:component];
     }
     [self.supplymentViews enumerateObjectsUsingBlock:^(UIView * _Nonnull supplymentView, NSUInteger index, BOOL * _Nonnull stop) {
@@ -119,14 +124,26 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     CGFloat tempOffset = 0;
     NSInteger rowIndex = 0;
     for (NSInteger index = 0; index < rowCount; index ++) {
-        tempOffset += [self.delegate lf_pickerView:self HeightForComponent:componentIndex Row:index];
+        CGFloat cellHeight = [self.delegate lf_pickerView:self HeightForComponent:componentIndex Row:index];
+        tempOffset += cellHeight;
         if (tempOffset > offset) {
             rowIndex = index;
             break;
         }
     }
-    [component selectRowAtIndexPath:[NSIndexPath indexPathForRow:rowIndex inSection:0] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
-    [component.delegate tableView:component didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:rowIndex inSection:0]];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:rowIndex inSection:0];
+    [component selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+    [component.delegate tableView:component didSelectRowAtIndexPath:indexPath];
+    LFPickerViewCell *cell = [component cellForRowAtIndexPath:indexPath];
+    cell.selected = YES;
+}
+
+- (void)selectRow:(NSInteger)row Component:(NSInteger)component Animated:(BOOL)animated {
+    UITableView *componentTable = self.components[component];
+    if (componentTable) {
+        [componentTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0] animated:animated scrollPosition:UITableViewScrollPositionMiddle];
+        [componentTable.delegate tableView:componentTable didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+    }
 }
 
 #pragma mark - UITableViewDataSource
@@ -147,6 +164,10 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
         if ([self.delegate respondsToSelector:@selector(lf_pickerView:titleForRow:forComponent:)]) {
             NSString *title = [self.delegate lf_pickerView:self titleForRow:indexPath.row forComponent:componentIndex];
             cell.textLabel.text = title;
+        }
+        if ([self.delegate respondsToSelector:@selector(lf_pickerView:attributedTitleForRow:forComponent:)]) {
+            NSAttributedString *attributeString = [self.delegate lf_pickerView:self attributedTitleForRow:indexPath.row forComponent:componentIndex];
+            cell.textLabel.attributedText = attributeString;
         }
         return cell;
     } else {
@@ -187,7 +208,27 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    [self lf_pickerViweAutoCorrection:scrollView];
+    if (!decelerate) {
+        [self lf_pickerViweAutoCorrection:scrollView];
+    }
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    UITableView *component = (UITableView *)scrollView;
+    NSInteger componentIndex = [self.components indexOfObject:component];
+    
+    NSInteger rowCount = [self.dataSource lf_pickerView:self numberOfRowsInComponent:componentIndex];
+    CGFloat tempOffset = 0;
+    NSInteger rowIndex = 0;
+    CGFloat offset = scrollView.contentOffset.y;
+    for (NSInteger index = 0; index < rowCount; index ++) {
+        CGFloat cellHeight = [self.delegate lf_pickerView:self HeightForComponent:componentIndex Row:index];
+        tempOffset += cellHeight;
+        rowIndex = index;
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:rowIndex + 1 inSection:0];
+        LFPickerViewCell *cell = [component cellForRowAtIndexPath:indexPath];
+        cell.selected = offset > tempOffset - cellHeight / 2 && offset < tempOffset + cellHeight /2;
+    }
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

@@ -33,6 +33,18 @@
     return self;
 }
 
+- (void)setSelected:(BOOL)selected {
+    [super setSelected:selected];
+    if (selected) {
+        self.textLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize] + 2];
+        self.textLabel.alpha = 1;
+    } else {
+        self.textLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+        self.textLabel.alpha = 0.7;
+    }
+    
+}
+
 - (void)layoutSubviews {
     self.reuseableView.frame = CGRectMake(0, 0, CGRectGetWidth(self.contentView.frame), CGRectGetHeight(self.contentView.frame));
     [super layoutSubviews];

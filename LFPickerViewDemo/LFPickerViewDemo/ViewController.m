@@ -27,6 +27,10 @@
     [self.view addSubview:self.pickerView];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [self.pickerView selectRow:3 Component:1 Animated:YES];
+}
+
 - (NSInteger)lf_numberOfComponentsInPickerView:(LFPickerView *)pickerView {
     return 3;
 }

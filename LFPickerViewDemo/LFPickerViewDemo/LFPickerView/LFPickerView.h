@@ -84,7 +84,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// Determin whether the picker view should filled it's frame with last row;
 @property (nonatomic, assign, getter = isAutoFillLastRow) BOOL autoFillLastRow;
 
+
+/// ReloadAllData
 - (void)reloadData;
+
+/// Select sepcific row in given component
+/// @param row the row you want to selected
+/// @param component the component
+/// @param animated need animation or not
+- (void)selectRow:(NSInteger)row Component:(NSInteger)component Animated:(BOOL)animated;
 
 @end
 
