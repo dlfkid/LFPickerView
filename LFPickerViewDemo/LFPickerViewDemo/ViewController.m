@@ -23,7 +23,7 @@
     self.pickerView = [[LFPickerView alloc] initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 200)];
     self.pickerView.delegate = self;
     self.pickerView.dataSource = self;
-    self.pickerView.backgroundColor = [UIColor lightGrayColor];
+    self.pickerView.autoFillLastRow = YES;
     [self.view addSubview:self.pickerView];
 }
 
@@ -45,6 +45,16 @@
 
 - (CGFloat)lf_pickerView:(LFPickerView *)pickerView HeightForComponent:(NSInteger)component Row:(NSInteger)row {
     return 44;
+}
+
+- (UIView *)lf_pickerView:(LFPickerView *)pickerView SupplymentView:(NSInteger)index {
+    UIView *supplymentView = [UIView new];
+    supplymentView.backgroundColor = [UIColor yellowColor];
+    return supplymentView;
+}
+
+- (CGFloat)lf_pickerView:(LFPickerView *)pickerView widthOfSupplymentView:(NSInteger)index {
+    return 30;
 }
 
 @end

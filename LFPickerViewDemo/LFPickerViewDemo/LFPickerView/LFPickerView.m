@@ -10,9 +10,10 @@
 
 #import "LFPickerViewCell.h"
 
-@interface LFPickerView()<UITableViewDataSource, UITableViewDelegate>
+@interface LFPickerView()<UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate>
 
 @property (nonatomic, strong) NSArray <UITableView *> *components;
+@property (nonatomic, strong) NSArray <UIView *> *supplymentViews;
 @property (nonatomic, strong) UIView *selectionFrame;
 
 @end
@@ -33,17 +34,34 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
 - (void)layoutSubviews {
     [self reloadData];
     __weak typeof(self) weakSelf = self;
+    
     [self.components enumerateObjectsUsingBlock:^(UITableView * _Nonnull component, NSUInteger index, BOOL * _Nonnull stop) {
-        CGFloat componentWidth = [weakSelf.delegate lf_pickerView:weakSelf WidthForComponent:index];
-        CGFloat originX = 0;
-        for (NSInteger i = 0; i < index; i ++) {
-            originX += [weakSelf.delegate lf_pickerView:weakSelf WidthForComponent:i];
-        }
-        component.frame = CGRectMake(originX, 0, componentWidth, CGRectGetHeight(weakSelf.frame));
+        CGFloat componentWidth = [weakSelf.delegate lf_pickerView:weakSelf WidthForComponent:index + 1];
+        CGFloat supplymentWidth = [weakSelf.delegate respondsToSelector:@selector(lf_pickerView:widthOfSupplymentView:)] ? [weakSelf.delegate lf_pickerView:weakSelf widthOfSupplymentView:index] : 0;
+        CGFloat originX = index * (componentWidth + supplymentWidth);
+        component.frame = CGRectMake(originX + supplymentWidth, 0, componentWidth, CGRectGetHeight(weakSelf.frame));
+        
+        self.supplymentViews[index + 1].frame = CGRectMake((componentWidth + supplymentWidth) * (index + 1), 0, supplymentWidth, CGRectGetHeight(weakSelf.frame));
     }];
+    
+    if (self.supplymentViews.firstObject) {
+        CGFloat supplymentWidth = [self.delegate lf_pickerView:self widthOfSupplymentView:0];
+        self.supplymentViews.firstObject.frame = CGRectMake(0, 0, supplymentWidth, CGRectGetHeight(self.frame));
+        
+    }
     
     self.selectionFrame.frame = CGRectMake(0, CGRectGetHeight(self.frame) / 2, CGRectGetWidth(self.frame), 1);
     [self bringSubviewToFront:self.selectionFrame];
+    
+    if (self.isAutoFillLastRow) {
+        UITableView *lastComponent = self.components.lastObject;
+        CGFloat lastOriginX = CGRectGetMinX(lastComponent.frame);
+        CGFloat lastWidth = CGRectGetWidth(self.frame) - lastOriginX;
+        CGFloat lastSupplymentWidth = [self.delegate lf_pickerView:self widthOfSupplymentView:self.supplymentViews.count - 1];
+        self.components.lastObject.frame = CGRectMake(lastOriginX, 0, lastWidth - lastSupplymentWidth, CGRectGetHeight(self.frame));
+        UIView *lastSupplymnet = self.supplymentViews.lastObject;
+        lastSupplymnet.frame = CGRectMake(CGRectGetMaxX(lastComponent.frame), 0, lastSupplymentWidth, CGRectGetHeight(self.frame));
+    }
     
     [super layoutSubviews];
 }
@@ -66,7 +84,21 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
         [component registerClass:[LFPickerViewCell class] forCellReuseIdentifier:[NSString stringWithFormat:@"%@_%ld", [LFPickerViewCell reuseIdentifier], (long)[self.components indexOfObject:component]]];
         [self addSubview:component];
     }
-    
+    [self.supplymentViews enumerateObjectsUsingBlock:^(UIView * _Nonnull supplymentView, NSUInteger index, BOOL * _Nonnull stop) {
+        [supplymentView removeFromSuperview];
+    }];
+    if (![self.delegate respondsToSelector:@selector(lf_pickerView:SupplymentView:)]) {
+        return;
+    }
+    NSMutableArray *tempSupplymentViews = [NSMutableArray array];
+    for (NSInteger i = 0; i < numberOfComponent + 1; i ++) {
+        UIView *supplymentView = [self.delegate lf_pickerView:self SupplymentView:i];
+        [tempSupplymentViews addObject:supplymentView];
+    }
+    self.supplymentViews = tempSupplymentViews;
+    for (UIView *supplyment in self.supplymentViews) {
+        [self addSubview:supplyment];
+    }
 }
 
 - (UITableView *)componentsInit {
@@ -76,6 +108,25 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     tableView.dataSource = self;
     tableView.delegate = self;
     return tableView;
+}
+
+- (void)lf_pickerViweAutoCorrection:(UIScrollView *)scrollView {
+    CGFloat offset = scrollView.contentOffset.y;
+    UITableView *component = (UITableView *)scrollView;
+    NSInteger componentIndex = [self.components indexOfObject:component];
+    
+    NSInteger rowCount = [self.dataSource lf_pickerView:self numberOfRowsInComponent:componentIndex];
+    CGFloat tempOffset = 0;
+    NSInteger rowIndex = 0;
+    for (NSInteger index = 0; index < rowCount; index ++) {
+        tempOffset += [self.delegate lf_pickerView:self HeightForComponent:componentIndex Row:index];
+        if (tempOffset > offset) {
+            rowIndex = index;
+            break;
+        }
+    }
+    [component selectRowAtIndexPath:[NSIndexPath indexPathForRow:rowIndex inSection:0] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+    [component.delegate tableView:component didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:rowIndex inSection:0]];
 }
 
 #pragma mark - UITableViewDataSource
@@ -127,6 +178,23 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     NSInteger componentIndex = [self.components indexOfObject:tableView];
     CGFloat lastCellHeight = [self.delegate lf_pickerView:self HeightForComponent:componentIndex Row:[self.dataSource lf_pickerView:self numberOfRowsInComponent:componentIndex] - 1];
     return (CGRectGetHeight(self.frame) - lastCellHeight) / 2 ;
+}
+
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self lf_pickerViweAutoCorrection:scrollView];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    [self lf_pickerViweAutoCorrection:scrollView];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger compentIndex = [self.components indexOfObject:tableView];
+    if ([self.delegate respondsToSelector:@selector(lf_pickerView:didSelectRow:inComponent:)]) {
+       [self.delegate lf_pickerView:self didSelectRow:indexPath.row inComponent:compentIndex];
+    }
 }
 
 #pragma mark - LazyLoads

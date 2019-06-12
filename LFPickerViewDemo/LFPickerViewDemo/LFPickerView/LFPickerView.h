@@ -22,11 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 
-/// Return Size of the supplyMentView
-/// @param pickerView the pickerView
-/// @param component the component before the supplymentView
-- (CGSize)lf_pickerView:(LFPickerView *)pickerView SizeOfSupplymentViewAfterComponent:(NSInteger)component;
-
 /// Title for earch row in a component
 /// @param pickerView the pickerview
 /// @param row the row
@@ -55,8 +50,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// the view work as supplyment view
 /// @param pickerView the pickerview
-/// @param component component
-- (UIView *)lf_pickerView:(LFPickerView *)pickerView SupplymentViewAfterComponent:(NSInteger)component;
+/// @param index position of the supplymentView
+- (UIView *)lf_pickerView:(LFPickerView *)pickerView SupplymentView:(NSInteger)index;
+
+/// Return Size of the supplyMentView
+/// @param pickerView the pickerView
+/// @param index position of the supplymentView
+- (CGFloat)lf_pickerView:(LFPickerView *)pickerView widthOfSupplymentView:(NSInteger)index;
 
 @end
 
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Indicate that hou many rows each component should have;
 /// @param pickerView PickerView
-/// @param component the compont index
+/// @param component component
 - (NSInteger)lf_pickerView:(LFPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component;
 
 @end
@@ -79,6 +79,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) NSObject<LFPickerViewDelegate> *delegate;
 @property (nonatomic, weak) NSObject<LFPickerViewDataSource> *dataSource;
+
+
+/// Determin whether the picker view should filled it's frame with last row;
+@property (nonatomic, assign, getter = isAutoFillLastRow) BOOL autoFillLastRow;
 
 - (void)reloadData;
 
