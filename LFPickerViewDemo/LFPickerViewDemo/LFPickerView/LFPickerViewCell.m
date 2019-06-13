@@ -27,6 +27,7 @@
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.textLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+        self.textLabel.textAlignment = NSTextAlignmentCenter;
     }
     return self;
 }

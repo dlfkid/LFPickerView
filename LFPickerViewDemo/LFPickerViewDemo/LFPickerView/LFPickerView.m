@@ -36,7 +36,7 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     
     [self.components enumerateObjectsUsingBlock:^(UITableView * _Nonnull component, NSUInteger index, BOOL * _Nonnull stop) {
         CGFloat componentWidth = [weakSelf.delegate lf_pickerView:weakSelf WidthForComponent:index + 1];
-        CGFloat supplymentWidth = [weakSelf.delegate respondsToSelector:@selector(lf_pickerView:widthOfSupplymentView:)] ? [weakSelf.delegate lf_pickerView:weakSelf widthOfSupplymentView:index] : 0;
+        CGFloat supplymentWidth = [weakSelf.delegate respondsToSelector:@selector(lf_pickerView:widthOfSupplymentView:)] ? [weakSelf.delegate lf_pickerView:weakSelf widthOfSupplymentView:index + 1] : 0;
         CGFloat originX = index * (componentWidth + supplymentWidth);
         component.frame = CGRectMake(originX + supplymentWidth, 0, componentWidth, CGRectGetHeight(weakSelf.frame));
         
