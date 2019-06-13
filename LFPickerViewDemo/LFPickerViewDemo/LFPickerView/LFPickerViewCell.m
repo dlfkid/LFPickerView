@@ -27,8 +27,6 @@
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.textLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
-        _reuseableView = [[UIView alloc] initWithFrame:CGRectZero];
-        [self.contentView addSubview:self.reuseableView];
     }
     return self;
 }
@@ -42,12 +40,26 @@
         self.textLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
         self.textLabel.alpha = 0.7;
     }
-    
+    if (self.hasSelectionFrame) {
+        self.contentView.layer.borderWidth = selected ? self.selectionFrameWdith : 0;
+        self.contentView.layer.borderColor = self.selectionFrameColor ? self.selectionFrameColor.CGColor : [UIColor lightGrayColor].CGColor;
+        self.contentView.layer.cornerRadius = self.selectionFrameCornerRadius;
+    }
 }
 
 - (void)layoutSubviews {
-    self.reuseableView.frame = CGRectMake(0, 0, CGRectGetWidth(self.contentView.frame), CGRectGetHeight(self.contentView.frame));
+    if (self.reuseableView) {
+        self.reuseableView.frame = CGRectMake(0, 0, CGRectGetWidth(self.contentView.frame), CGRectGetHeight(self.contentView.frame));
+    }
     [super layoutSubviews];
+}
+
+- (void)setReuseableView:(UIView *)reuseableView {
+    [self.reuseableView removeFromSuperview];
+    _reuseableView = reuseableView;
+    if (!self.reuseableView.superview) {
+        [self.contentView addSubview:self.reuseableView];
+    }
 }
 
 @end

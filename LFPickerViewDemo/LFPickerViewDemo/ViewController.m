@@ -24,6 +24,7 @@
     self.pickerView.delegate = self;
     self.pickerView.dataSource = self;
     self.pickerView.autoFillLastRow = YES;
+    self.pickerView.useCommomSelectionnFrame = YES;
     [self.view addSubview:self.pickerView];
 }
 
@@ -43,12 +44,20 @@
     return [NSString stringWithFormat:@"R: %ld C: %ld", (long)row, (long)component];
 }
 
+//- (UIView *)lf_pickerView:(LFPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
+//    UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
+//    label.backgroundColor = [UIColor cyanColor];
+//    label.text = @"Test";
+//    label.frame = CGRectMake(0, 0, 100, 44);
+//    return label;
+//}
+
 - (CGFloat)lf_pickerView:(LFPickerView *)pickerView WidthForComponent:(NSInteger)component {
     return 100;
 }
 
 - (CGFloat)lf_pickerView:(LFPickerView *)pickerView HeightForComponent:(NSInteger)component Row:(NSInteger)row {
-    return 44;
+    return 56;
 }
 
 - (UIView *)lf_pickerView:(LFPickerView *)pickerView SupplymentView:(NSInteger)index {
@@ -60,5 +69,10 @@
 - (CGFloat)lf_pickerView:(LFPickerView *)pickerView widthOfSupplymentView:(NSInteger)index {
     return 30;
 }
+
+- (CGFloat)lf_heightOfCommonSelectionFramePickerView:(LFPickerView *)pickerView {
+    return 56;
+}
+
 
 @end

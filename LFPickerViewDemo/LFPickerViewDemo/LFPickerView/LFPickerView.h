@@ -58,6 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param index position of the supplymentView
 - (CGFloat)lf_pickerView:(LFPickerView *)pickerView widthOfSupplymentView:(NSInteger)index;
 
+/// Return height of the common selectionFrame your must set useCommonSelectionframe to YES before the delegate can work
+/// @param pickerView the pickerView
+- (CGFloat)lf_heightOfCommonSelectionFramePickerView:(LFPickerView *)pickerView;
+
 @end
 
 @protocol LFPickerViewDataSource
@@ -84,6 +88,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Determin whether the picker view should filled it's frame with last row;
 @property (nonatomic, assign, getter = isAutoFillLastRow) BOOL autoFillLastRow;
 
+/// Determin whether the picker view use a common selection frame, better use when each row shares the same height
+@property (nonatomic, assign) BOOL useCommomSelectionnFrame;
+@property (nonatomic, strong, readonly) UIView *commonSelectionFrame;
 
 /// ReloadAllData
 - (void)reloadData;

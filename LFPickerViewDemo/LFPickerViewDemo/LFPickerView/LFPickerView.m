@@ -14,7 +14,7 @@
 
 @property (nonatomic, strong) NSArray <UITableView *> *components;
 @property (nonatomic, strong) NSArray <UIView *> *supplymentViews;
-@property (nonatomic, strong) UIView *selectionFrame;
+@property (nonatomic, strong) UIView *commonSelectionFrame;
 
 @end
 
@@ -26,7 +26,6 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     self = [super initWithFrame:frame];
     if (self) {
         [self reloadData];
-        [self addSubview:self.selectionFrame];
     }
     return self;
 }
@@ -50,9 +49,6 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
         
     }
     
-    self.selectionFrame.frame = CGRectMake(0, CGRectGetHeight(self.frame) / 2, CGRectGetWidth(self.frame), 1);
-    [self bringSubviewToFront:self.selectionFrame];
-    
     if (self.isAutoFillLastRow) {
         UITableView *lastComponent = self.components.lastObject;
         CGFloat lastOriginX = CGRectGetMinX(lastComponent.frame);
@@ -66,6 +62,12 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     [self.supplymentViews enumerateObjectsUsingBlock:^(UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [weakSelf bringSubviewToFront:obj];
     }];
+    
+    if (self.useCommomSelectionnFrame) {
+        CGFloat selectionFrameHeight = [self.delegate lf_heightOfCommonSelectionFramePickerView:self];
+        self.commonSelectionFrame.frame = CGRectMake(0, (CGRectGetHeight(self.frame) - selectionFrameHeight) / 2, CGRectGetWidth(self.frame), selectionFrameHeight);
+        [self bringSubviewToFront:self.commonSelectionFrame];
+    }
     
     [super layoutSubviews];
 }
@@ -146,6 +148,15 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     }
 }
 
+- (void)setUseCommomSelectionnFrame:(BOOL)commomSelectionnFrame {
+    _useCommomSelectionnFrame = commomSelectionnFrame;
+    if (commomSelectionnFrame) {
+        [self addSubview:self.commonSelectionFrame];
+    } else {
+        [self.commonSelectionFrame removeFromSuperview];
+    }
+}
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -168,6 +179,10 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
         if ([self.delegate respondsToSelector:@selector(lf_pickerView:attributedTitleForRow:forComponent:)]) {
             NSAttributedString *attributeString = [self.delegate lf_pickerView:self attributedTitleForRow:indexPath.row forComponent:componentIndex];
             cell.textLabel.attributedText = attributeString;
+        }
+        if ([self.delegate respondsToSelector:@selector(lf_pickerView:viewForRow:forComponent:reusingView:)]) {
+            UIView *reuseView = [self.delegate lf_pickerView:self viewForRow:indexPath.row forComponent:componentIndex reusingView:cell.reuseableView];
+            cell.reuseableView = reuseView;
         }
         return cell;
     } else {
@@ -240,14 +255,15 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
 
 #pragma mark - LazyLoads
 
-- (UIView *)selectionFrame {
-    if (!_selectionFrame) {
-        _selectionFrame = [[UIView alloc] initWithFrame:CGRectZero];
-        _selectionFrame.layer.borderWidth = 0.5;
-        _selectionFrame.layer.borderColor = [UIColor lightGrayColor].CGColor;
-        _selectionFrame.layer.cornerRadius = 5;
+- (UIView *)commonSelectionFrame {
+    if (!_commonSelectionFrame) {
+        _commonSelectionFrame = [[UIView alloc] initWithFrame:CGRectZero];
+        _commonSelectionFrame.layer.borderWidth = 0.5;
+        _commonSelectionFrame.layer.borderColor = [UIColor lightGrayColor].CGColor;
+        _commonSelectionFrame.layer.cornerRadius = 5;
+        _commonSelectionFrame.userInteractionEnabled = NO;
     }
-    return _selectionFrame;
+    return _commonSelectionFrame;
 }
 
 @end

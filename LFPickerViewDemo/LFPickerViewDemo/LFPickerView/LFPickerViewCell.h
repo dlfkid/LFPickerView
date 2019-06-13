@@ -11,7 +11,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LFPickerViewCell : UITableViewCell
+
+/// reuseAbleView when using customized view as cells
 @property (nonatomic, strong) UIView *reuseableView;
+
+/// show selection frame for each cell
+@property (nonatomic, assign, getter = hasSelectionFrame) BOOL selectionFrame;
+@property (nonatomic, assign) CGFloat selectionFrameCornerRadius;
+@property (nonatomic, assign) CGFloat selectionFrameWdith;
+@property (nonatomic, strong) UIColor *selectionFrameColor;
 
 + (CGSize)itemSize;
 
