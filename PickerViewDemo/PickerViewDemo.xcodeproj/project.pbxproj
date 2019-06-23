@@ -13,8 +13,8 @@
 		B450375222BF69DF008A5C90 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B450375122BF69DF008A5C90 /* Assets.xcassets */; };
 		B450375522BF69DF008A5C90 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B450375322BF69DF008A5C90 /* LaunchScreen.storyboard */; };
 		B450375822BF69DF008A5C90 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B450375722BF69DF008A5C90 /* main.m */; };
-		B450376322BF69FC008A5C90 /* LFPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B450376122BF69FB008A5C90 /* LFPickerView.m */; };
-		B450376422BF69FC008A5C90 /* LFPickerViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B450376222BF69FB008A5C90 /* LFPickerViewCell.m */; };
+		B450376F22BFB6FA008A5C90 /* LFPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B450376C22BFB6FA008A5C90 /* LFPickerView.m */; };
+		B450377022BFB6FA008A5C90 /* LFPickerViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B450376E22BFB6FA008A5C90 /* LFPickerViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,10 +28,10 @@
 		B450375422BF69DF008A5C90 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B450375622BF69DF008A5C90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B450375722BF69DF008A5C90 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		B450375F22BF69FB008A5C90 /* LFPickerViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPickerViewCell.h; sourceTree = "<group>"; };
-		B450376022BF69FB008A5C90 /* LFPickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPickerView.h; sourceTree = "<group>"; };
-		B450376122BF69FB008A5C90 /* LFPickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFPickerView.m; sourceTree = "<group>"; };
-		B450376222BF69FB008A5C90 /* LFPickerViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFPickerViewCell.m; sourceTree = "<group>"; };
+		B450376B22BFB6FA008A5C90 /* LFPickerViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LFPickerViewCell.h; path = PickerViewDemo/LFPickerView/LFPickerViewCell.h; sourceTree = SOURCE_ROOT; };
+		B450376C22BFB6FA008A5C90 /* LFPickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LFPickerView.m; path = PickerViewDemo/LFPickerView/LFPickerView.m; sourceTree = SOURCE_ROOT; };
+		B450376D22BFB6FA008A5C90 /* LFPickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LFPickerView.h; path = PickerViewDemo/LFPickerView/LFPickerView.h; sourceTree = SOURCE_ROOT; };
+		B450376E22BFB6FA008A5C90 /* LFPickerViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LFPickerViewCell.m; path = PickerViewDemo/LFPickerView/LFPickerViewCell.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,10 +81,10 @@
 		B450375E22BF69FB008A5C90 /* LFPickerView */ = {
 			isa = PBXGroup;
 			children = (
-				B450376022BF69FB008A5C90 /* LFPickerView.h */,
-				B450376122BF69FB008A5C90 /* LFPickerView.m */,
-				B450375F22BF69FB008A5C90 /* LFPickerViewCell.h */,
-				B450376222BF69FB008A5C90 /* LFPickerViewCell.m */,
+				B450376D22BFB6FA008A5C90 /* LFPickerView.h */,
+				B450376C22BFB6FA008A5C90 /* LFPickerView.m */,
+				B450376B22BFB6FA008A5C90 /* LFPickerViewCell.h */,
+				B450376E22BFB6FA008A5C90 /* LFPickerViewCell.m */,
 			);
 			name = LFPickerView;
 			path = ../../LFPickerViewDemo/LFPickerViewDemo/LFPickerView;
@@ -160,10 +160,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B450376322BF69FC008A5C90 /* LFPickerView.m in Sources */,
+				B450376F22BFB6FA008A5C90 /* LFPickerView.m in Sources */,
 				B450374D22BF69DD008A5C90 /* ViewController.m in Sources */,
 				B450375822BF69DF008A5C90 /* main.m in Sources */,
-				B450376422BF69FC008A5C90 /* LFPickerViewCell.m in Sources */,
+				B450377022BFB6FA008A5C90 /* LFPickerViewCell.m in Sources */,
 				B450374A22BF69DD008A5C90 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
