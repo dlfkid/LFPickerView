@@ -23,7 +23,6 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
 @implementation LFPickerView
 
 - (void)layoutSubviews {
-    [self reloadData];
     __weak typeof(self) weakSelf = self;
     // 整个Picker高度
     CGFloat viewHeight = CGRectGetHeight(weakSelf.frame);
@@ -45,12 +44,6 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
         CGFloat componentX = CGRectGetMaxX(component.frame);
         weakSelf.supplymentViews[index].frame = CGRectMake(componentX, 0, supplymentWidth, viewHeight);
     }];
-    
-//    if (self.supplymentViews.firstObject) {
-//        CGFloat supplymentWidth = [self.delegate lf_pickerView:self widthOfSupplymentView:0];
-//        self.supplymentViews.firstObject.frame = CGRectMake(0, 0, supplymentWidth, CGRectGetHeight(self.frame));
-//
-//    }
     
     if (self.isAutoFillLastRow) {
         UITableView *lastComponent = self.components.lastObject;
@@ -78,6 +71,7 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
 #pragma mark - Actions
 
 - (void)reloadData {
+    [self.commonSelectionFrame removeFromSuperview];
     [self.components enumerateObjectsUsingBlock:^(UITableView * _Nonnull component, NSUInteger index, BOOL * _Nonnull stop) {
        // 移除所有的tableView
         [component removeFromSuperview];
@@ -109,6 +103,7 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     for (UIView *supplyment in self.supplymentViews) {
         [self addSubview:supplyment];
     }
+    [self addSubview:self.commonSelectionFrame];
 }
 
 - (UITableView *)componentsInit {
@@ -152,13 +147,9 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     }
 }
 
-- (void)setUseCommomSelectionnFrame:(BOOL)commomSelectionFrame {
-    _useCommomSelectionFrame = commomSelectionFrame;
-    if (commomSelectionFrame) {
-        [self addSubview:self.commonSelectionFrame];
-    } else {
-        [self.commonSelectionFrame removeFromSuperview];
-    }
+- (void)setUseCommomSelectionFrame:(BOOL)useCommomSelectionFrame {
+    _useCommomSelectionFrame = useCommomSelectionFrame;
+    self.commonSelectionFrame.hidden = !useCommomSelectionFrame;
 }
 
 #pragma mark - UITableViewDataSource

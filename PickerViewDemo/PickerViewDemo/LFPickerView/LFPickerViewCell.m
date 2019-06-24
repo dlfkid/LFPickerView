@@ -39,7 +39,7 @@
         self.textLabel.alpha = 1;
     } else {
         self.textLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
-        self.textLabel.alpha = 0.7;
+        self.textLabel.alpha = 0.4;
     }
     if (self.hasSelectionFrame) {
         self.contentView.layer.borderWidth = selected ? self.selectionFrameWdith : 0;
