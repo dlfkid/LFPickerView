@@ -25,21 +25,32 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
 - (void)layoutSubviews {
     [self reloadData];
     __weak typeof(self) weakSelf = self;
-    
+    // 整个Picker高度
+    CGFloat viewHeight = CGRectGetHeight(weakSelf.frame);
     [self.components enumerateObjectsUsingBlock:^(UITableView * _Nonnull component, NSUInteger index, BOOL * _Nonnull stop) {
-        CGFloat componentWidth = [weakSelf.delegate lf_pickerView:weakSelf WidthForComponent:index + 1];
-        CGFloat supplymentWidth = [weakSelf.delegate respondsToSelector:@selector(lf_pickerView:widthOfSupplymentView:)] ? [weakSelf.delegate lf_pickerView:weakSelf widthOfSupplymentView:index + 1] : 0;
-        CGFloat originX = index * (componentWidth + supplymentWidth);
-        component.frame = CGRectMake(originX + supplymentWidth, 0, componentWidth, CGRectGetHeight(weakSelf.frame));
-        
-        self.supplymentViews[index + 1].frame = CGRectMake((componentWidth + supplymentWidth) * (index + 1), 0, supplymentWidth, CGRectGetHeight(weakSelf.frame));
+        BOOL hasSupplyment = [weakSelf.delegate respondsToSelector:@selector(lf_pickerView:widthOfSupplymentView:)];
+        // 每一列Component宽度
+        CGFloat componentWidth = [weakSelf.delegate lf_pickerView:weakSelf WidthForComponent:index];
+        // ,每一列supplymentView宽度
+        CGFloat supplymentWidth = hasSupplyment ? [weakSelf.delegate lf_pickerView:weakSelf widthOfSupplymentView:index] : 0;
+        if (index == 0) { // 如果是第一列，取0，0
+            component.frame = CGRectMake(0, 0, componentWidth, viewHeight);
+        } else { // 如果不是第一列，取前一列的末尾值
+            CGFloat lastComponentX = CGRectGetMaxX(weakSelf.components[index - 1].frame);
+            CGFloat lastSupplyment = hasSupplyment ? [weakSelf.delegate lf_pickerView:self widthOfSupplymentView:index - 1] : 0;
+            CGFloat originX = lastComponentX + lastSupplyment;
+            component.frame = CGRectMake(originX, 0, componentWidth, viewHeight);
+            
+        }
+        CGFloat componentX = CGRectGetMaxX(component.frame);
+        weakSelf.supplymentViews[index].frame = CGRectMake(componentX, 0, supplymentWidth, viewHeight);
     }];
     
-    if (self.supplymentViews.firstObject) {
-        CGFloat supplymentWidth = [self.delegate lf_pickerView:self widthOfSupplymentView:0];
-        self.supplymentViews.firstObject.frame = CGRectMake(0, 0, supplymentWidth, CGRectGetHeight(self.frame));
-        
-    }
+//    if (self.supplymentViews.firstObject) {
+//        CGFloat supplymentWidth = [self.delegate lf_pickerView:self widthOfSupplymentView:0];
+//        self.supplymentViews.firstObject.frame = CGRectMake(0, 0, supplymentWidth, CGRectGetHeight(self.frame));
+//
+//    }
     
     if (self.isAutoFillLastRow) {
         UITableView *lastComponent = self.components.lastObject;
@@ -90,7 +101,7 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
         return;
     }
     NSMutableArray *tempSupplymentViews = [NSMutableArray array];
-    for (NSInteger i = 0; i < numberOfComponent + 1; i ++) {
+    for (NSInteger i = 0; i < numberOfComponent; i ++) {
         UIView *supplymentView = [self.delegate lf_pickerView:self SupplymentView:i];
         [tempSupplymentViews addObject:supplymentView];
     }

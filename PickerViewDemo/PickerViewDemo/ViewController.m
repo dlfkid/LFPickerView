@@ -59,6 +59,7 @@
     label.text = [NSString stringWithFormat:@"%02zd", row];
     label.frame = CGRectMake(0, 0, 60, 50);
     label.textColor = [UIColor whiteColor];
+    label.textAlignment = NSTextAlignmentCenter;
     return label;
 }
 
@@ -73,29 +74,27 @@
 - (UIView *)lf_pickerView:(LFPickerView *)pickerView SupplymentView:(NSInteger)index {
     UILabel *indicateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     NSString *supplymentText = nil;
-    if (index == 1) {
+    if (index == 0) {
         supplymentText = @"Hour";
-    } else if (index == 2) {
+    } else if (index == 1) {
         supplymentText = @"Min";
-    } else if (index == 3) {
+    } else if (index == 2) {
         supplymentText = @"Sec";
     } else {
         supplymentText = @"";
     }
     indicateLabel.text = supplymentText;
     indicateLabel.textColor = [UIColor whiteColor];
-    
+    indicateLabel.textAlignment = NSTextAlignmentCenter;
     return indicateLabel;
 }
 
 - (CGFloat)lf_pickerView:(LFPickerView *)pickerView widthOfSupplymentView:(NSInteger)index {
     if (index == 0) {
-        return 0;
+        return 50;
     } else if (index == 1) {
         return 50;
     } else if (index == 2) {
-        return 50;
-    } else if (index == 3) {
         return 50;
     } else {
         return 0;
