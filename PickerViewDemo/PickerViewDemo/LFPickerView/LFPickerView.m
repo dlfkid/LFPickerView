@@ -22,8 +22,22 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
 
 @implementation LFPickerView
 
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self addSubview:self.commonSelectionFrame];
+        _pickerHeader = [[UIView alloc] initWithFrame:CGRectZero];
+        [self addSubview:self.pickerHeader];
+    }
+    return self;
+}
+
 - (void)layoutSubviews {
+    [self reloadData];
     __weak typeof(self) weakSelf = self;
+    // 头部View的Frame
+    CGFloat pickerHeaderWidth = CGRectGetWidth(self.pickerHeader.frame);
+    self.pickerHeader.frame = CGRectMake(0, 0, pickerHeaderWidth, self.frame.size.height);
     // 整个Picker高度
     CGFloat viewHeight = CGRectGetHeight(weakSelf.frame);
     [self.components enumerateObjectsUsingBlock:^(UITableView * _Nonnull component, NSUInteger index, BOOL * _Nonnull stop) {
@@ -33,7 +47,7 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
         // ,每一列supplymentView宽度
         CGFloat supplymentWidth = hasSupplyment ? [weakSelf.delegate lf_pickerView:weakSelf widthOfSupplymentView:index] : 0;
         if (index == 0) { // 如果是第一列，取0，0
-            component.frame = CGRectMake(0, 0, componentWidth, viewHeight);
+            component.frame = CGRectMake(pickerHeaderWidth, 0, componentWidth, viewHeight);
         } else { // 如果不是第一列，取前一列的末尾值
             CGFloat lastComponentX = CGRectGetMaxX(weakSelf.components[index - 1].frame);
             CGFloat lastSupplyment = hasSupplyment ? [weakSelf.delegate lf_pickerView:self widthOfSupplymentView:index - 1] : 0;
@@ -70,8 +84,14 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
 
 #pragma mark - Actions
 
+- (void)setPickerHeader:(UIView *)pickerHeader {
+    [_pickerHeader removeFromSuperview];
+    _pickerHeader = pickerHeader;
+    [self addSubview:pickerHeader];
+    [self setNeedsLayout];
+}
+
 - (void)reloadData {
-    [self.commonSelectionFrame removeFromSuperview];
     [self.components enumerateObjectsUsingBlock:^(UITableView * _Nonnull component, NSUInteger index, BOOL * _Nonnull stop) {
        // 移除所有的tableView
         [component removeFromSuperview];
@@ -103,7 +123,6 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     for (UIView *supplyment in self.supplymentViews) {
         [self addSubview:supplyment];
     }
-    [self addSubview:self.commonSelectionFrame];
 }
 
 - (UITableView *)componentsInit {

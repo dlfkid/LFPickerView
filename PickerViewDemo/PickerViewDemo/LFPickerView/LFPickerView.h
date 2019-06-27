@@ -141,9 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) NSObject<LFPickerViewDelegate> *delegate;
 @property (nonatomic, weak) NSObject<LFPickerViewDataSource> *dataSource;
-
-
-
+@property (nonatomic, strong) UIView *pickerHeader;
 /**
  Determin whether the picker view should filled it's frame with last row;
  */
