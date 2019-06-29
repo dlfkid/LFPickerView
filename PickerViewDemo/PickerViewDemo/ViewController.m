@@ -31,12 +31,12 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [self.pickerView selectRow:3 Component:1 Animated:YES];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 3), dispatch_get_main_queue(), ^{
-        UILabel *headerView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 80, 40)];
-        headerView.text = @"Header";
-        headerView.textColor = [UIColor whiteColor];
-        self.pickerView.pickerHeader = headerView;
-    });
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 3), dispatch_get_main_queue(), ^{
+//        UILabel *headerView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 80, 40)];
+//        headerView.text = @"Header";
+//        headerView.textColor = [UIColor whiteColor];
+//        self.pickerView.pickerHeader = headerView;
+//    });
 }
 
 - (NSInteger)lf_numberOfComponentsInPickerView:(LFPickerView *)pickerView {

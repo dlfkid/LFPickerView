@@ -1,6 +1,6 @@
 # LFPickerView
 Customizable UIPicker View
-
+![alt text](/demoPic.png)
 ## Features
 
 When I was trying to use UIPicker View to implenment an apple's stopwatch I was shocked... THERE IS NO WAY YOU CAN DO THAT Cause UIPickeView doesn't support supplymnet views. So I intent to make my own widgets;
