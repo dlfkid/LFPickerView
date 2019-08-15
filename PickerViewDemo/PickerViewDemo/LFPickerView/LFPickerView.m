@@ -146,7 +146,7 @@ static NSString * const kComponentsReuseIdentifier = @"kComponentsReuseIdentifie
     for (NSInteger index = 0; index < rowCount; index ++) {
         CGFloat cellHeight = [self.delegate lf_pickerView:self HeightForComponent:componentIndex Row:index];
         tempOffset += cellHeight;
-        if (tempOffset > offset) {
+        if (tempOffset > offset + 1) {
             rowIndex = index;
             break;
         }
