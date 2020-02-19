@@ -3,7 +3,7 @@ Customizable UIPicker View
 ![alt text](/demoPic.png)
 ## Features
 
-When I was trying to use UIPicker View to implenment an apple's stopwatch I was shocked... THERE IS NO WAY YOU CAN DO THAT Cause UIPickeView doesn't support supplymnet views. So I intent to make my own widgets;
+When I was trying to use UIPicker View to implenment an apple's stopwatch I was shocked... THERE IS NO WAY YOU CAN DO THAT Cause UIPickeView doesn't support supplyment views. So I intent to make my own widgets;
 
 1. Supports supplymnet views & headers, you can put any view you want in the middle of the revolvers.
 
@@ -87,4 +87,4 @@ self.pickerView = [[LFPickerView alloc] initWithFrame:CGRectMake(0, 100, self.vi
 
 ## License
 
-**LFBannerView** is released under the MIT License. See LICENSE for details.
+**LFPickerView** is released under the MIT License. See LICENSE for details.
